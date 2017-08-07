@@ -21,9 +21,19 @@ public class Central : MonoBehaviour {
         GM.SendMessage("Restart");
     }
 
+    public void GameOver()
+    {
+        play_button.SetActive(true);
+    }
+
     public void Restart()
     {
         play_button.SetActive(true);
+
+    }
+
+    public void TurnRight()
+    {
 
     }
 }

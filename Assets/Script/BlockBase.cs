@@ -13,7 +13,10 @@ public class BlockBase : MonoBehaviour {
     void Start()
     {
         GM = GameObject.FindGameObjectWithTag("GM");
-        gold = 1;
+        if(gold == 0)
+        {
+            gold = 1;
+        }
     }
 
     // Update is called once per frame

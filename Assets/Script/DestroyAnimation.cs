@@ -5,6 +5,7 @@ using UnityEngine;
 public class DestroyAnimation : MonoBehaviour {
     private bool big = false;
     private bool shrink = false;
+    public bool coin = false;
 	// Use this for initialization
 	void Start () {
         big = false;
@@ -13,6 +14,8 @@ public class DestroyAnimation : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+        if (coin)
+            return;
 		if(big)
         {
             transform.localScale = new Vector2(transform.localScale.x + Time.deltaTime*3, 
