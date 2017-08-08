@@ -4,44 +4,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
 
-
-    public List<GameObject> blocks = new List<GameObject>();
-    public GameObject hud_prefab;
-    private int gold, stage_gold, highscore;
-
-    //dealing with UI label
-    public GameObject[] label_obj = new GameObject[4];
-    public UILabel[] label = new UILabel[4];
-
-    //prefab
-    public GameObject[] prefab = new GameObject[4];
-    public GameObject gold_prefab;
-    public List<GameObject> bonus = new List<GameObject>();
-    public GameObject ball_prefab;
-    private GameObject ball;
-    public GameObject barrier;
-    private GameObject gold_coin;
-    public GameObject paddle_prefab;
-
-    private bool transition = false;
-
-    //power up
-    private int up, right, down, left;
-    private int up_max, right_max, down_max, left_max;
-
-
-    private bool in_game = false;
-
-    private int lives = 3;
-    private int current_stage = 0;
-
-    private bool stage_clear = false;
-    private GameObject paddle;
-
-    
-    //Text element to display certain messages on
-   // public GUIText FeedbackText;
-
+    #region variable
+    #region public
     //Text to be displayed when entering one of the gamestates
     public string GameNotStartedText;
     public string GameCompletedText;
@@ -52,6 +16,49 @@ public class GameManager : MonoBehaviour {
     public AudioClip FailedSound;
 
     public GameObject central;
+
+    public List<GameObject> blocks = new List<GameObject>();
+    public GameObject hud_prefab;
+
+    //Check if player is currently in game
+    public bool in_game = false;
+
+    //dealing with UI label
+    public GameObject[] label_obj = new GameObject[4];
+    public UILabel[] label = new UILabel[4];
+
+    //prefab
+    public GameObject[] prefab = new GameObject[4];
+    public GameObject gold_prefab;
+    public List<GameObject> bonus = new List<GameObject>();
+    public GameObject ball_prefab;
+    
+    public GameObject barrier;
+   
+    public GameObject paddle_prefab;
+
+    #endregion
+    #region private
+    private bool transition = false;
+
+    //power up
+    private int up, right, down, left;
+    private int up_max, right_max, down_max, left_max;
+
+
+
+    private int lives = 3;
+    private int current_stage = 0;
+
+    private bool stage_clear = false;
+    private GameObject paddle;
+    private int gold, stage_gold, highscore;
+    private GameObject ball;
+    private GameObject gold_coin;
+    #endregion
+    #endregion
+    
+
 
     // Use this for initialization
     void Start()
@@ -64,9 +71,7 @@ public class GameManager : MonoBehaviour {
     }
 
 
-    /// <summary>
-    /// UI RELATED CODE
-    /// </summary>
+    #region UI
 
     private void SetUpLabel()
     {
@@ -126,6 +131,7 @@ public class GameManager : MonoBehaviour {
         label[l].text = "" + v;
     }
 
+#endregion
     //Get gold when start the game by getting at central
     private void SetGold()
     {
@@ -157,7 +163,7 @@ public class GameManager : MonoBehaviour {
         if(gold_flow)
         {
             //error checking
-            if(stage_gold < 0)
+            if(stage_gold <= 0)
             {
                 gold_flow = false;
                 return;
@@ -172,12 +178,10 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    
 
 
-    /// <summary>
-    /// GAME FLOW RELATED
-    /// </summary>
+
+    #region GameFlow
 
 
     //Coroutine which waits and then restarts the level
@@ -410,20 +414,13 @@ public class GameManager : MonoBehaviour {
     /// END GAME FLOW
     /// </summary>
 
-
+#endregion
 
 
     //Call when a power is activate
     private void Power(int type)
     {
-        if (!in_game)
-        {
-            if(type == 1)
-            {
-
-            }
-            return;
-        }
+        
         if (transition)
             return;
         //up

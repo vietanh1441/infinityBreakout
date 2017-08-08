@@ -13,6 +13,7 @@ public class UIFollowTarget : MonoBehaviour
 {
 	public delegate void OnVisibilityChange (bool isVisible);
 
+    public Vector3 offset;
 	/// <summary>
 	/// Callback triggered every time the object becomes visible or invisible.
 	/// </summary>
@@ -91,12 +92,12 @@ public class UIFollowTarget : MonoBehaviour
 	{
 		if (target && uiCamera != null)
 		{
-			Vector3 pos = gameCamera.WorldToViewportPoint(target.position);
+			Vector3 pos = gameCamera.WorldToViewportPoint(target.position + offset);
 
 			// Determine the visibility and the target alpha
 			int isVisible = (gameCamera.orthographic || pos.z > 0f) && (pos.x > 0f && pos.x < 1f && pos.y > 0f && pos.y < 1f) ? 1 : 0;
 			bool vis = (isVisible == 1);
-            Debug.Log(vis);
+
 			// If visible, update the position
 			//if (vis)
 			//{
