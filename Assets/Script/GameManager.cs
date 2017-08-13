@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public AudioClip FailedSound;
 
     public GameObject central;
+    private Central central_scr;
 
     public List<GameObject> blocks = new List<GameObject>();
     public GameObject hud_prefab;
@@ -30,7 +31,7 @@ public class GameManager : MonoBehaviour {
     //prefab
     public GameObject[] prefab = new GameObject[4];
     public GameObject gold_prefab;
-    public List<GameObject> bonus = new List<GameObject>();
+    
     public GameObject ball_prefab;
     
     public GameObject barrier;
@@ -45,7 +46,7 @@ public class GameManager : MonoBehaviour {
     private int up, right, down, left;
     private int up_max, right_max, down_max, left_max;
 
-
+    private bool practice = false;
 
     private int lives = 3;
     private int current_stage = 0;
@@ -63,9 +64,11 @@ public class GameManager : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+        central_scr = central.GetComponent<Central>();
         //Restart();
         //InitStage(current_stage);
         SetGold();
+        
         SetUpLabel();
         //InitLabel();
     }
@@ -90,6 +93,14 @@ public class GameManager : MonoBehaviour {
         {
             label_obj[i].SetActive(true);
         }
+    }
+
+    private void SetPracticeUI()
+    {
+        label_obj[6].SetActive(false);
+        label_obj[7].SetActive(false);
+        label_obj[8].SetActive(false);
+        central_scr.play_button.SetActive(false);
     }
 
     private void GameOverUI()
@@ -135,10 +146,24 @@ public class GameManager : MonoBehaviour {
     //Get gold when start the game by getting at central
     private void SetGold()
     {
-        gold = 0;
+        gold = central_scr.gold;
     }
 
+    private void SetRss()
+    {
+        lives = central_scr.rss[0];
+        up_max = central_scr.rss[1];
+        right_max = central_scr.rss[2];
+        down_max = central_scr.rss[3];
+        left_max = central_scr.rss[4];
+        up = up_max;
+        right = right_max;
+        left = left_max;
+        down = down_max;
+    }
   
+
+
     public void DestroyBlock(GameObject b)
     {
         if(blocks.Contains(b))
@@ -193,6 +218,18 @@ public class GameManager : MonoBehaviour {
        
     }
 
+    public void Saving()
+    {
+        if (stage_gold > central_scr.highscore)
+        {
+            //highscore = stage_gold;
+            central_scr.highscore = stage_gold;
+        }
+       // gold += stage_gold;
+        central_scr.gold = central_scr.gold + stage_gold;
+        central_scr.InitLabel();
+    }
+
     //Helper to restart the level
     //call when the button is pushed
     public void Restart()
@@ -202,21 +239,36 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 1;
         gold_flow = false;
         CancelInvoke("HighScoreBlink");
-        if(stage_gold > highscore)
+
+        //Saving();
+
+        if (stage_gold > central_scr.highscore)
         {
             highscore = stage_gold;
+            //central_scr.highscore = stage_gold;
         }
         gold += stage_gold;
 
         stage_gold = 0;
+
         //Get power number from central
-        //For now
-        up = 1; right = 1; down = 1; left = 1;
-        Debug.Log("In Restart");
+        SetRss();
+
+       // Debug.Log("In Restart");
         SetUpInGameUI();
         InitLabel();
         CreateBoard();
     }
+
+    public void Practice()
+    {
+
+        current_stage = 0;
+        Time.timeScale = 1;
+        practice = true;
+        CreateBoard();
+    }
+
 
     private void CreateBoard()
     {
@@ -232,6 +284,19 @@ public class GameManager : MonoBehaviour {
     //then decide whether to call for next stage or game over
     public void GetNewStage()
     {
+        //if it is practice, call the practice set instead
+        if(practice&& current_stage == 0)
+        {
+            StartTransition();
+            return;
+        }
+        if(practice )
+        {
+            GameOver();
+            return;
+        }
+         
+
         //Check if there is anything left in scene
         //If there is, player lose a life and destroy everything
         if (blocks.Count > 0)
@@ -272,6 +337,12 @@ public class GameManager : MonoBehaviour {
         InitStage(current_stage);
         Time.timeScale = 0.3f;
         transition = true;
+
+        //if it is practice or the first pass then there is no need to normalize
+        if(practice || current_stage == 0)
+        {
+            return;
+        }
         NormalizeBall();
         NormalizeTime();
     }
@@ -292,6 +363,12 @@ public class GameManager : MonoBehaviour {
     public void InitStage(int stage)
     {
         stage_clear = false;
+
+        if(practice)
+        {
+            CreateBonus(0);
+            return;
+        }
 
         int j = 0;
         for (int i = 0; i < stage; i++)
@@ -319,7 +396,7 @@ public class GameManager : MonoBehaviour {
     //When there is a chance that the game will create a premade stage instead of procedure generated stage
     void CreateBonus(int i)
     {
-        GameObject g = Instantiate(bonus[i], new Vector3(0, 0, 0), Quaternion.identity);
+        GameObject g = Instantiate(central_scr.bonus[i], new Vector3(0, 0, 0), Quaternion.identity);
         foreach (Transform child in g.transform)
         {
             child.parent = paddle.transform;
@@ -359,8 +436,18 @@ public class GameManager : MonoBehaviour {
             }
         }
         blocks.Clear();
+        
+
+        if(practice)
+        {
+            Debug.Log("EndPractice");
+            practice = false;
+            central_scr.PractiveOver();
+            return;
+        }
+        Saving();
         GameOverUI();
-        central.SendMessage("GameOver");
+        central_scr.GameOver();
         //gold += stage_gold;
         //central.SendMessage("Restart");
     }
@@ -369,6 +456,7 @@ public class GameManager : MonoBehaviour {
     {
         if(stage_gold > highscore)
         {
+           
             HighScoreCelebrate();
         }
         else
@@ -382,6 +470,7 @@ public class GameManager : MonoBehaviour {
     private void HighScoreCelebrate()
     {
         highscore = stage_gold;
+        central_scr.highscore = highscore;
         SetGameOverUI();
         high_blink = false;
         time_blink = 0;

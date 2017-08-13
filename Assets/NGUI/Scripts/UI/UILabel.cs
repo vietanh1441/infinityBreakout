@@ -2175,4 +2175,9 @@ public class UILabel : UIWidget
 	{
 		if (!paused && mTrueTypeFont != null) Invalidate(false);
 	}
+
+    public void SetText(string t)
+    {
+        text = t;
+    }
 }

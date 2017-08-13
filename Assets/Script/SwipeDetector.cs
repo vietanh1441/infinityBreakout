@@ -9,7 +9,9 @@ public class SwipeDetector : MonoBehaviour {
     GameObject central;
     Central central_scr;
     Transform camera;
-    Vector2 current_camera;
+    Vector2 current_camera, current_scroller;
+    public Transform scroller;
+    public GameObject[] UIparent = new GameObject[4];
 	// Use this for initialization
 	void Start () {
         GM = GameObject.FindGameObjectWithTag("GM");
@@ -18,6 +20,7 @@ public class SwipeDetector : MonoBehaviour {
         gm_scr = GM.GetComponent<GameManager>();
         camera = Camera.main.transform;
         current_camera = camera.position;
+        current_scroller = scroller.position;
 	}
 	
 	// Update is called once per frame
@@ -58,28 +61,52 @@ public class SwipeDetector : MonoBehaviour {
     {
         if (gm_scr.in_game)
             return;
+       
         Vector2 start = gesture.startPosition;
         Vector2 current = gesture.position;
         Vector2 delta = current - start;
-        float x = delta.x / 400 *15;
-        Debug.Log(x);
-       
+
+        if (central_scr.in_shop)
+        {
+            float y = delta.y / 100;
+            
+            scroller.position = new Vector3(scroller.position.x, current_scroller.y +y, 0);
+            return;
+        }
+
+        float x = delta.x / 400 *7.5f;
+        //Debug.Log(x);
+        
 
         camera.position = new Vector3(current_camera.x - x, camera.position.y, -10);
+
+        
     }
 
     public void FingerUp()
     {
-        int c = central_scr.cur_scene;
-        float v = 15f * c;
-        if(current_camera.x - camera.position.x > 7.5f)
+        if(central_scr.in_shop)
         {
-            camera.position = new Vector3(-15 + v, camera.position.y,-10);
+            //Fix the scroller position
+            current_scroller.y = (int)scroller.position.y;
+
+            //Display practice scene
+            central_scr.DisplayPractice(scroller.gameObject.GetComponent<Scroller>().current);
+
+            return;
+
+
+        }
+        int c = central_scr.cur_scene;
+        float v = 18f * c;
+        if(current_camera.x - camera.position.x > 3.5f)
+        {
+            camera.position = new Vector3(-18 + v, camera.position.y,-10);
             central_scr.cur_scene--;
         }
-        else if (current_camera.x - camera.position.x < -7.5f)
+        else if (current_camera.x - camera.position.x < -3.5f)
         {
-            camera.position = new Vector3(15 + v, camera.position.y,-10);
+            camera.position = new Vector3(18 + v, camera.position.y,-10);
             central_scr.cur_scene++;
           
         }

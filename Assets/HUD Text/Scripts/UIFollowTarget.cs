@@ -132,4 +132,9 @@ public class UIFollowTarget : MonoBehaviour
         target = t;
         
     }
+
+    public void AddOffset(Vector3 v)
+    {
+        offset = offset + v;
+    }
 }

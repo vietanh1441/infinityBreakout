@@ -23,9 +23,11 @@ public class UI2DSprite : UIBasicSprite
 	[HideInInspector][SerializeField] bool mFixedAspect = false;
 	[HideInInspector][SerializeField] float mPixelSize = 1f;
 
-	/// <summary>
-	/// To be used with animations.
-	/// </summary>
+    /// <summary>
+    /// To be used with animations.
+    /// </summary>
+
+   
 
 	public UnityEngine.Sprite nextSprite;
 
@@ -267,12 +269,57 @@ public class UI2DSprite : UIBasicSprite
 		}
 	}
 
-	/// <summary>
-	/// Update the sprite in case it was animated.
-	/// </summary>
 
-	protected override void OnUpdate ()
+    ///Custome Function for making item fade in and out
+    
+
+    private bool fade_in = false, fade_out = false;
+
+    private void FadeIn()
+    {
+        fade_in = true;
+        fade_out = false;
+    }
+
+    private void FadeOut()
+    {
+        fade_out = true;
+        fade_in = false;
+    }
+
+
+    /// <summary>
+    /// Update the sprite in case it was animated.
+    /// </summary>
+
+    protected override void OnUpdate ()
 	{
+        //Making item fade in and out
+        if(fade_out)
+        {
+           
+            Color temp = color;
+            temp.a = temp.a - 0.01f;
+            color = temp;
+            if(temp.a <= 0)
+            {
+                fade_out = false;
+            }
+        }
+        if(fade_in)
+        {
+            Color temp = color;
+            temp.a+= 0.01f;
+            color = temp;
+            if (temp.a >=1)
+            {
+                fade_in = false;
+                GameObject.FindGameObjectWithTag("Central").SendMessage("RepealAndReplace");
+            }
+        }
+        
+
+
 		if (nextSprite != null)
 		{
 			if (nextSprite != mSprite)
@@ -396,4 +443,6 @@ public class UI2DSprite : UIBasicSprite
 		if (onPostFill != null)
 			onPostFill(this, offset, verts, uvs, cols);
 	}
+
+  
 }
